@@ -1,0 +1,223 @@
+#!/usr/bin/env python3
+import os
+import subprocess
+import sys
+import time
+from rich.console import Console
+from rich.panel import Panel
+from rich.prompt import Prompt, Confirm
+from rich.progress import track
+from rich.text import Text
+
+console = Console()
+
+# Colors
+GREEN = "#00FF00"
+RED = "#FF0000"
+BLUE = "#00AAFF"
+YELLOW = "#FFFF00"
+PURPLE = "#FF00FF"
+
+class MrLazySetup:
+    def __init__(self):
+        self.commands = {
+            "essential": [
+                "pkg update -y",
+                "pkg upgrade -y"
+            ],
+            "python": [
+                "pkg install python -y",
+                "pkg install python2 -y", 
+                "pkg install python2-dev -y",
+                "pkg install python3 -y"
+            ],
+            "pip_base": [
+                "pip install requests",
+                "pip2 install requests",
+                "pip install mechanize",
+                "pip2 install mechanize",
+                "pip install lolcat"
+            ],
+            "pip_scraping": [
+                "pip install bs4",
+                "pip2 install bs4",
+                "pip2 install requests bs4",
+                "pip install futures",
+                "pip2 install futures",
+                "pip install rich"
+            ],
+            "languages": [
+                "pkg install java -y",
+                "pkg install fish -y",
+                "pkg install ruby -y"
+            ],
+            "essentials": [
+                "pkg install help -y",
+                "pkg install git -y",
+                "pkg install host -y"
+            ],
+            "web_tools": [
+                "pkg install php -y",
+                "pkg install perl -y",
+                "pkg install w3m -y"
+            ],
+            "security": [
+                "pkg install nmap -y",
+                "pkg install havij -y",
+                "pkg install hydra -y"
+            ],
+            "utils": [
+                "pkg install bash -y",
+                "pkg install clang -y",
+                "pkg install nano -y",
+                "pkg install figlet -y",
+                "pkg install cowsay -y",
+                "pkg install curl -y",
+                "pkg install tar -y"
+            ]
+        }
+
+    def banner(self):
+        """MR LAZY Banner"""
+        banner_text = """
+  ██████╗██╗  ██╗██████╗  █████╗ ██████╗ 
+ ██╔════╝██║  ██║██╔══██╗██╔══██╗██╔══██╗
+ ██║     ███████║██████╔╝███████║██████╔╝
+ ██║     ██╔══██║██╔══██╗██╔══██║██╔══██╗
+ ╚██████╗██║  ██║██████╔╝██║  ██║██║  ██║
+  ╚═════╝╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝
+                                    
+        MR LAZY TERMUX SETUP
+        """
+        console.print(Panel.fit(banner_text, 
+                               title="🔥 MR LAZY 🔥", 
+                               border_style="bold magenta",
+                               padding=(1, 2)))
+
+    def run_command(self, cmd, description=""):
+        """Execute command with progress"""
+        if description:
+            console.print(f"[bold green]📦 {description}[/bold green]")
+        
+        process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, 
+                                 stderr=subprocess.STDOUT, text=True, bufsize=1,
+                                 universal_newlines=True)
+        
+        for line in iter(process.stdout.readline, ''):
+            if line:
+                console.print(line.strip(), end='')
+        
+        process.wait()
+        time.sleep(0.5)
+
+    def install_important(self):
+        """Install only important commands"""
+        console.print("\n[bold yellow]🚀 Installing IMPORTANT tools only...[/bold yellow]")
+        important_cmds = []
+        
+        for category, cmds in self.commands.items():
+            if category in ["essential", "python", "pip_base", "security", "essentials"]:
+                important_cmds.extend(cmds)
+        
+        for cmd in track(important_cmds, description="Installing..."):
+            self.run_command(cmd)
+
+    def install_all(self):
+        """Install ALL commands"""
+        console.print("\n[bold cyan]🌟 Installing ALL tools (Complete Setup)...[/bold cyan]")
+        all_cmds = []
+        
+        for category, cmds in self.commands.items():
+            all_cmds.extend(cmds)
+        
+        for cmd in track(all_cmds, description="Complete Setup..."):
+            self.run_command(cmd)
+
+    def create_menu(self):
+        """Create MR LAZY Menu"""
+        menu_content = '''#!/data/data/com.termux/files/usr/bin/bash
+clear
+figlet -f slant "MR LAZY"
+echo "═══════════════════════════════════════"
+echo "🔥 MR LAZY TERMUX TOOLS MENU 🔥"
+echo "═══════════════════════════════════════"
+echo "1.  Nmap Scanner"
+echo "2.  Hydra Brute Force" 
+echo "3.  Havij SQLi Tool"
+echo "4.  Git Clone Tool"
+echo "5.  Python Projects"
+echo "6.  Nano Editor"
+echo "7.  Figlet Banner"
+echo "8.  Cowsay Fun"
+echo "9.  Update All"
+echo "0.  Exit"
+echo ""
+read -p "Choose: " choice
+
+case $choice in
+    1) nmap -h ;;
+    2) hydra -h ;;
+    3) havij ;;
+    4) git clone ;;
+    5) python3 ;;
+    6) nano ;;
+    7) figlet "MR LAZY" | lolcat ;;
+    8) cowsay "MR LAZY Setup Complete!" ;;
+    9) pkg update -y && pkg upgrade -y ;;
+    0) exit ;;
+    *) echo "Invalid!" && sleep 2 && bash $0 ;;
+esac
+'''
+        
+        with open(os.path.expanduser("~/mr_lazy.sh"), "w") as f:
+            f.write(menu_content)
+        
+        os.system("chmod +x ~/mr_lazy.sh")
+        os.system("echo 'alias mrlazy=~/mr_lazy.sh' >> ~/.bashrc")
+        os.system("source ~/.bashrc")
+
+    def main(self):
+        self.banner()
+        
+        console.print("\n[bold green]✅ All your commands included![/bold green]")
+        console.print("[bold yellow]⚡ Choose installation type:[/bold yellow]\n")
+        
+        print("1. 🚀 IMPORTANT Tools Only (Fast - 5 mins)")
+        print("2. 🌟 COMPLETE Setup (All Tools - 15 mins)")
+        print("3. ℹ️  Show Commands List")
+        
+        choice = Prompt.ask("Enter choice [1/2/3]", choices=["1", "2", "3"], default="1")
+        
+        if choice == "1":
+            if Confirm.ask("Install IMPORTANT tools only?"):
+                self.install_important()
+        elif choice == "2":
+            if Confirm.ask("Install ALL tools? (Recommended)"):
+                self.install_all()
+        elif choice == "3":
+            console.print("\n[bold blue]📋 All Commands:[/bold blue]")
+            for cat, cmds in self.commands.items():
+                console.print(f"\n[italic cyan]{cat.upper()}:[/italic cyan]")
+                for cmd in cmds:
+                    console.print(f"  $ {cmd}")
+            return
+        
+        # Create menu and finalize
+        console.print("\n[bold green]🎉 Creating MR LAZY Menu...[/bold green]")
+        self.create_menu()
+        
+        console.print(Panel("✅ SETUP COMPLETE!\n\n🚀 Run: mrlazy\n\n📱 Storage: termux-setup-storage", 
+                           title="MR LAZY", style="bold green"))
+        
+        console.print("\n[bold magenta]💎 Subscribe [Your Channel] for more![/bold magenta]")
+
+if __name__ == "__main__":
+    if not os.path.exists("/data/data/com.termux/files/usr/bin/pkg"):
+        console.print("[bold red]❌ Run in Termux only![/bold red]")
+        sys.exit(1)
+    
+    try:
+        installer = MrLazySetup()
+        installer.main()
+    except KeyboardInterrupt:
+        console.print("\n[bold yellow]👋 Cancelled by user![/bold yellow]")
